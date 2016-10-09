@@ -170,6 +170,8 @@ public class GearyController : Geary.BaseObject {
         // Ensure all geary windows have an icon
         Gtk.Window.set_default_icon_name("geary");
 
+        apply_app_menu_fix();
+
         // Setup actions.
         setup_actions();
         GearyApplication.instance.load_ui_resource("accelerators.ui");
@@ -393,6 +395,31 @@ public class GearyController : Geary.BaseObject {
     private void add_accelerator(string accelerator, string action) {
         GtkUtil.add_accelerator(GearyApplication.instance.ui_manager, GearyApplication.instance.actions,
             accelerator, action);
+    }
+
+    // Fix for clients having both:
+    //   * disabled Gtk/ShellShowsAppMenu setting
+    //   * no 'menu' setting in Gtk/DecorationLayout
+    // See https://bugzilla.gnome.org/show_bug.cgi?id=770617
+    private void apply_app_menu_fix() {
+        Gtk.Settings? settings = Gtk.Settings.get_default();
+
+        if (settings == null) {
+            warning("Couldn't fetch Gtk default settings");
+            return ;
+        }
+
+        string? decoration_layout = settings.gtk_decoration_layout;
+
+        if (decoration_layout == null) decoration_layout = "";
+
+        if (!decoration_layout.contains("menu")) {
+            string prefix = "menu:";
+            if (decoration_layout.contains(":")) {
+                prefix = (decoration_layout.has_prefix(":")) ? "menu" : "menu,";
+            }
+            settings.gtk_decoration_layout = prefix + settings.gtk_decoration_layout;
+        }
     }
 
     private Gtk.ActionEntry[] create_actions() {
