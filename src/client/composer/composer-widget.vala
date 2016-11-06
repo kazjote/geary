@@ -271,6 +271,8 @@ public class ComposerWidget : Gtk.EventBox {
 
     public string window_title { get; set; }
 
+    public Configuration config { get; set; }
+
     [GtkChild]
     internal Gtk.ScrolledWindow editor_scrolled;
 
@@ -381,8 +383,9 @@ public class ComposerWidget : Gtk.EventBox {
     public signal void draft_id_changed(Geary.EmailIdentifier? id);
 
 
-    public ComposerWidget(Geary.Account account, ComposeType compose_type,
+    public ComposerWidget(Geary.Account account, ComposeType compose_type, Configuration config,
         Geary.Email? referred = null, string? quote = null, bool is_referred_draft = false) {
+        this.config = config;
         this.account = account;
         this.compose_type = compose_type;
         if (this.compose_type == ComposeType.NEW_MESSAGE)
@@ -556,8 +559,8 @@ public class ComposerWidget : Gtk.EventBox {
         destroy.connect(() => { close_draft_manager_async.begin(null); });
     }
 
-    public ComposerWidget.from_mailto(Geary.Account account, string mailto) {
-        this(account, ComposeType.NEW_MESSAGE);
+    public ComposerWidget.from_mailto(Geary.Account account, string mailto, Configuration config) {
+        this(account, ComposeType.NEW_MESSAGE, config);
         
         Gee.HashMultiMap<string, string> headers = new Gee.HashMultiMap<string, string>();
         if (mailto.length > Geary.ComposedEmail.MAILTO_SCHEME.length) {
@@ -1214,7 +1217,7 @@ public class ComposerWidget : Gtk.EventBox {
             return;
         Gtk.Widget? focus = this.container.top_window.get_focus();
         this.container.remove_composer();
-        ComposerWindow window = new ComposerWindow(this);
+        ComposerWindow window = new ComposerWindow(this, config);
 
         // Workaround a GTK+ crasher, Bug 771812. When the composer is
         // re-parented, its menu_button's popover keeps a reference to

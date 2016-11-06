@@ -21,7 +21,7 @@ public class ComposerWindow : Gtk.ApplicationWindow, ComposerContainer {
     private bool closing = false;
 
 
-    public ComposerWindow(ComposerWidget composer) {
+    public ComposerWindow(ComposerWidget composer, Configuration config) {
         Object(type: Gtk.WindowType.TOPLEVEL);
         this.composer = composer;
 
@@ -33,11 +33,16 @@ public class ComposerWindow : Gtk.ApplicationWindow, ComposerContainer {
         focus_in_event.connect(on_focus_in);
         focus_out_event.connect(on_focus_out);
 
-        this.composer.header.show_close_button = true;
-        this.composer.free_header();
-        set_titlebar(this.composer.header);
-        composer.bind_property("window-title", this.composer.header, "title",
-                               BindingFlags.SYNC_CREATE);
+        if (config.desktop_environment == Configuration.DesktopEnvironment.UNITY) {
+            composer.embed_header();
+            composer.bind_property("window-title", this, "title", BindingFlags.SYNC_CREATE);
+        } else {
+            this.composer.header.show_close_button = true;
+            this.composer.free_header();
+            set_titlebar(this.composer.header);
+            composer.bind_property("window-title", this.composer.header, "title",
+                                   BindingFlags.SYNC_CREATE);
+        }
 
         show();
         set_position(Gtk.WindowPosition.CENTER);

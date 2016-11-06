@@ -17,17 +17,20 @@ public class MainToolbar : Gtk.Box {
     public bool find_open { get; set; default = false; }
     public int left_pane_width { get; set; }
     
+    private Configuration config { get; private set; }
+
     private PillHeaderbar folder_header;
     private PillHeaderbar conversation_header;
     private Gtk.Button archive_button;
     private Gtk.Button trash_delete_button;
     private Binding guest_header_binding;
     
-    public MainToolbar() {
+    public MainToolbar(Configuration config) {
         Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 0);
-        
-        folder_header = new PillHeaderbar(GearyApplication.instance.actions);
-        conversation_header = new PillHeaderbar(GearyApplication.instance.actions);
+
+        this.config = config;
+        folder_header = new PillHeaderbar(GearyApplication.instance.actions, config);
+        conversation_header = new PillHeaderbar(GearyApplication.instance.actions, config);
         folder_header.get_style_context().add_class("geary-titlebar");
         folder_header.get_style_context().add_class("geary-titlebar-left");
         conversation_header.get_style_context().add_class("geary-titlebar");
@@ -46,8 +49,10 @@ public class MainToolbar : Gtk.Box {
                 return true;
             });
 
-        this.bind_property("account", folder_header, "title", BindingFlags.SYNC_CREATE);
-        this.bind_property("folder", folder_header, "subtitle", BindingFlags.SYNC_CREATE);
+        if (config.desktop_environment != Configuration.DesktopEnvironment.UNITY) {
+            this.bind_property("account", folder_header, "title", BindingFlags.SYNC_CREATE);
+            this.bind_property("folder", folder_header, "subtitle", BindingFlags.SYNC_CREATE);
+        }
         this.bind_property("show-close-button-left", folder_header, "show-close-button",
             BindingFlags.SYNC_CREATE);
         this.bind_property("show-close-button-right", conversation_header, "show-close-button",

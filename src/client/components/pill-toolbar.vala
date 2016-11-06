@@ -14,13 +14,16 @@
 public interface PillBar : Gtk.Container {
     protected abstract Gtk.ActionGroup action_group { get; set; }
     protected abstract Gtk.SizeGroup size { get; set; }
+
+    private abstract Configuration config { get; set; }
     
     public abstract void pack_start(Gtk.Widget widget);
     public abstract void pack_end(Gtk.Widget widget);
     
-    protected virtual void initialize(Gtk.ActionGroup toolbar_action_group) {
+    protected virtual void initialize(Gtk.ActionGroup toolbar_action_group, Configuration config) {
         action_group = toolbar_action_group;
         size = new Gtk.SizeGroup(Gtk.SizeGroupMode.VERTICAL);
+        this.config = config;
     }
     
     public virtual void add_start(Gtk.Widget widget) {
@@ -55,6 +58,10 @@ public interface PillBar : Gtk.Container {
             Gtk.Image image = new Gtk.Image.from_icon_name(icon_to_load, Gtk.IconSize.MENU);
             image.set_pixel_size(16);
             b.image = image;
+        }
+
+        if (config.desktop_environment == Configuration.DesktopEnvironment.UNITY) {
+            b.image.margin += 4;
         }
 
         b.always_show_image = true;
@@ -153,9 +160,11 @@ public interface PillBar : Gtk.Container {
 public class PillHeaderbar : Gtk.HeaderBar, PillBar {
     protected Gtk.ActionGroup action_group { get; set; }
     protected Gtk.SizeGroup size { get; set; }
+
+    private Configuration config { get; set; }
     
-    public PillHeaderbar(Gtk.ActionGroup toolbar_action_group) {
-        initialize(toolbar_action_group);
+    public PillHeaderbar(Gtk.ActionGroup toolbar_action_group, Configuration config) {
+        initialize(toolbar_action_group, config);
     }
 }
 
@@ -165,10 +174,12 @@ public class PillHeaderbar : Gtk.HeaderBar, PillBar {
 public class PillToolbar : Gtk.Box, PillBar {
     protected Gtk.ActionGroup action_group { get; set; }
     protected Gtk.SizeGroup size { get; set; }
+
+    private Configuration config { get; set; }
     
-    public PillToolbar(Gtk.ActionGroup toolbar_action_group) {
+    public PillToolbar(Gtk.ActionGroup toolbar_action_group, Configuration config) {
         Object(orientation: Gtk.Orientation.HORIZONTAL, spacing: 6);
-        initialize(toolbar_action_group);
+        initialize(toolbar_action_group, config);
     }
     
     public new void pack_start(Gtk.Widget widget) {
