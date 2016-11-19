@@ -21,7 +21,7 @@ public class MainWindow : Gtk.ApplicationWindow {
     public ConversationViewer conversation_viewer { get; private set; }
     public StatusBar status_bar { get; private set; default = new StatusBar(); }
     public Geary.Folder? current_folder { get; private set; default = null; }
-    public GearyApplication geary_application { get; private set; }
+    public Configuration config { get; private set; }
     
     public int window_width { get; set; }
     public int window_height { get; set; }
@@ -44,8 +44,7 @@ public class MainWindow : Gtk.ApplicationWindow {
         add_events(Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK
             | Gdk.EventMask.FOCUS_CHANGE_MASK);
 
-        geary_application = application;
-        Configuration config = application.config;
+        config = application.config;
         conversation_viewer = new ConversationViewer();
 
         // This code both loads AND saves the pane positions with live
@@ -227,7 +226,7 @@ public class MainWindow : Gtk.ApplicationWindow {
         conversations_paned.pack1(search_bar_box, false, false);
         conversations_paned.pack2(conversation_viewer, true, true);
 
-        if (geary_application.config.desktop_environment == Configuration.DesktopEnvironment.UNITY) {
+        if (config.desktop_environment == Configuration.DesktopEnvironment.UNITY) {
             main_layout.pack_start(main_toolbar, false, true, 0);
         }
 

@@ -60,10 +60,6 @@ public interface PillBar : Gtk.Container {
             b.image = image;
         }
 
-        if (config.desktop_environment == Configuration.DesktopEnvironment.UNITY) {
-            b.image.margin += 4;
-        }
-
         b.always_show_image = true;
         
         if (!show_label)
